@@ -25,6 +25,7 @@ public class AllController {
 
 	/**
 	 * 회원가입
+	 * 
 	 * @param memberVO 회원가입 정보
 	 * @return memVO 회원가입 완료된 회원 정보
 	 */
@@ -45,6 +46,7 @@ public class AllController {
 
 	/**
 	 * 로그인
+	 * 
 	 * @param memberVO(memId : 아이디, memPw : 비밀번호)
 	 * @return memVO 회원정보, 이용중인 스토리지 정보
 	 */
@@ -63,13 +65,14 @@ public class AllController {
 
 		return memVO;
 	}
-	
+
 	/**
 	 * 서비스 종류 조회
+	 * 
 	 * @return 서비스 종류
 	 */
 	@GetMapping("/selectProductList")
-	public List<ProductVO> selectProductList(){
+	public List<ProductVO> selectProductList() {
 		List<ProductVO> proList = service.selectProductList();
 		return proList;
 	}
@@ -114,15 +117,21 @@ public class AllController {
 		log.info("updateStorage 실행...!");
 		log.info("subVO:{}", subVO);
 
-		ServiceResult result = service.updateStorage(subVO);
-
 		MemberVO memberVO = new MemberVO();
 
-		if (result.equals(ServiceResult.OK)) {
-			memberVO.setMemId(subVO.getMemId());
-			memberVO = service.selectMember(memberVO);
+		if (subVO.getSubCd() == null || subVO.getSubCd() == "" || subVO.getSubDate() == null) {
+			memberVO.setSubCd("입력하신 정보를 확인해주세요.");
+
 		} else {
-			memberVO.setMemId("서비스 오류, 다시 시도해주세요.");
+			ServiceResult result = service.updateStorage(subVO);
+
+			if (result.equals(ServiceResult.OK)) {
+				memberVO.setMemId(subVO.getMemId());
+				memberVO = service.selectMember(memberVO);
+			} else {
+				memberVO.setMemId("서비스 오류, 다시 시도해주세요.");
+			}
+
 		}
 		return memberVO;
 	}
