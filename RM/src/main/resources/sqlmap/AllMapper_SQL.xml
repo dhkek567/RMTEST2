@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.AllMapper">
+	
+	<resultMap type="memberVO" id="memberMap">
+		<id property="memId" column="MEM_ID"/>
+		<result property="memPw" column="mem_pw"/>
+		<result property="memNm" column="mem_nm"/>
+		<result property="memHp" column="mem_hp"/>
+		<result property="memMail" column="mem_mail"/>
+		<association property="subVO" javaType="subVO">
+			<result property="subCd" column="sub_cd"/>
+			<result property="memId" column="mem_id"/>
+			<result property="subCnt" column="sub_cnt"/>
+			<result property="subUseCnt" column="sub_use_cnt"/>
+			<result property="subSize" column="sub_size"/>
+			<result property="subDate" column="sub_date"/>
+			<result property="comNm" column="com_nm"/>
+			<result property="comTel" column="com_tel"/>
+			<result property="comMail" column="com_mail"/>
+			<result property="subResize" column="sub_resize"/>
+			<result property="proNm" column="pro_nm"/>
+		</association>
+	</resultMap>
+	
+	<!-- 로그인 시  -->
+	<sql id="checkPw">
+		<if test="memPw != null">
+			and mem_pw = #{memPw}
+		</if>
+	</sql>
+	
+	<!-- 서비스 스토리지 사용량 확인 시  -->
+	<sql id="checkStorage">
+		<if test="subCd != null">
+			and sub_cd = #{subCd}
+		</if>
+	</sql>
+	
+	<!-- 회원가입 -->
+	<insert id="registerMember" parameterType="memberVO">
+		INSERT INTO member (
+			    mem_id,
+			    mem_pw,
+			    mem_nm,
+			    mem_hp,
+			    mem_mail
+			) VALUES (
+			    #{memId},
+			    #{memPw},
+			    #{memNm},
+			    #{memHp},
+			    #{memMail}
+			)
+	</insert>
+	
+	<!-- 아이디 중복체크 -->
+	<select id="selectMemId" parameterType="String" resultType="String">
+		SELECT
+		    mem_id
+		FROM
+		    member
+		WHERE 
+			mem_id = #{memId}
+	</select>
+	
+	<!-- 회원정보 조회 -->
+	<select id="selectMember" parameterType="memberVO" resultMap="memberMap">
+		 SELECT
+		    m.mem_id,
+		    mem_nm,
+		    mem_hp,
+		    mem_mail,
+		    sub_cd,
+		    s.mem_id,
+		    sub_cnt,
+		    sub_size,
+		    sub_date,
+		    com_nm,
+		    com_tel,
+		    com_mail,
+		    sub_resize,
+		    pro_nm,
+		    sub_use_cnt
+		FROM
+		    member m left outer join subscription s on(m.mem_id = s.mem_id)
+		WHERE 
+		    m.mem_id = #{memId}
+		<include refid="checkPw"/>
+		<include refid="checkStorage"/>
+		
+	</select>
+	
+	<!-- 서비스 상품 리스트 조회 -->
+	<select id="selectProductList" resultType="productVO">
+		SELECT
+		    pro_nm,
+		    pro_recnt,
+		    pro_date,
+		    pro_size,
+		    pro_price
+		FROM
+		    product
+	</select>
+	
+	<!-- 서비스 구매 -->
+	<insert id="buySub" parameterType="subVO">
+		INSERT INTO subscription (
+		    sub_cd,
+		    mem_id,
+		    sub_cnt,
+		    sub_size,
+		    sub_date,
+		    com_nm,
+		    com_tel,
+		    com_mail,
+		    sub_resize,
+		    pro_nm,
+		    sub_use_cnt
+		) VALUES (
+		    'sub'||subCd_seq.nextval,
+		    #{memId},
+		    #{subCnt},
+		    #{subSize},
+		    #{subDate},
+		    #{comNm},
+		    #{comTel},
+		    #{comMail},
+		    #{subResize},
+		    #{proNm},
+		    #{subUseCnt}
+		)
+	</insert>
+	
+	<!-- 서비스 사용기간 연장 신청 -->
+	<update id="updateStorage" parameterType="subVO">
+		UPDATE 
+			subscription
+		SET
+		    sub_date = #{subDate}
+		WHERE
+		    sub_cd = #{subCd}
+	</update>
+</mapper>

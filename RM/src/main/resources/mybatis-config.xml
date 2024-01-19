@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<!-- VO와 테이블컬럼명에 있는 언더바 대응 -->
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+		<!-- 오라클 Nullable 컬럼 대응 -->
+		<setting name="jdbcTypeForNull" value="VARCHAR" />
+	</settings>
+	<typeAliases>
+		<typeAlias type="kr.or.ddit.vo.MemberVO" alias="memberVO" />
+		<typeAlias type="kr.or.ddit.vo.SubVO" alias="subVO" />
+		<typeAlias type="kr.or.ddit.vo.ProductVO" alias="productVO" />
+	</typeAliases>
+</configuration>
